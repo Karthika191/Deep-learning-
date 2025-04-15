@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.datasets import load_boston
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# Load the Boston Housing dataset
+boston = load_boston()
+X = boston.data
+y = boston.target
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the dataset
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Build the model
+model = Sequential([
+    Dense(64, input_dim=X_train.shape[1], activation='relu'),  # Hidden layer with 64 neurons
+    Dense(32, activation='relu'),  # Another hidden layer with 32 neurons
+    Dense(1)  # Output layer with 1 neuron (for regression)
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='mean_squared_error')
+
+# Train the model
+model.fit(X_train, y_train, epochs=100, verbose=1, validation_data=(X_test, y_test))
+
+# Evaluate the model
+mse = model.evaluate(X_test, y_test)
+print(f'Test Mean Squared Error: {mse:.2f}')
+
+# Make predictions
+predictions = model.predict(X_test)
+print(f'Predictions: {predictions[:5].flatten()}')
+print(f'Actual Values: {y_test[:5]}')
